@@ -3,58 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub File Loader</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top-color: #3498db;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <title>Скачать файл с GitHub</title>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center pAmong the steps we've taken, here are some key aspects of the HTML file we've created:1. **Responsive Design**: The webpage adapts to different screen sizes using Tailwind CSS classes and custom media queries.
+<body>
+    <h2>Скачивание файла</h2>
+    <div id="downloadStatus">Пытаемся скачать файл автоматически...</div>
+    <button id="manualDownload" style="display: none;">Скачать вручную</button>
 
-2. **Loading Animation**: A spinning loader appears while the file is being fetched, providing visual feedback to the user.
+    <script>
+        // URL вашего файла на GitHub (замените на реальный)
+        const githubFileUrl = 'https://raw.githubusercontent.com/Frugd/gdz/main/2.html';
+        
+        // Имя файла для сохранения
+        const fileName = 'имя_файла.расширение';
 
-3. **Error Handling**: Comprehensive error handling covers cases like:
-   - Network issues
-   - File not found (404)
-   - Unexpected response formats
-   - GitHub API rate limits
+        function downloadFile() {
+            fetch(githubFileUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Файл не найден');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.getElementById('downloadStatus').textContent = 'Файл успешно скачан!';
+                })
+                .catch(error => {
+                    console.error('Ошибка скачивания:', error);
+                    document.getElementById('downloadStatus').textContent = 'Не удалось скачать файл автоматически.';
+                    document.getElementById('manualDownload').style.display = 'block';
+                });
+        }
 
-4. **UX Improvements**:
-   - Fade-in animations for smooth content transitions
-   - Clear status messages
-   - "Retry" button for failed attempts
-   - Properly styled layout with proper spacing and typography
+        // Пытаемся скачать автоматически при загрузке страницы
+        window.addEventListener('DOMContentLoaded', downloadFile);
 
-5. **Code Structure**:
-   - Clean separation of concerns (HTML structure, CSS styles, JavaScript logic)
-   - Modular JavaScript with helper functions
-   - Documented code with comments
-
-6. **GitHub Integration**:
-   - Dynamic URL construction based on current page location
-   - Proper handling of GitHub raw content URLs
-   - Repository-relative file paths
-
-7. **Performance Considerations**:
-   - No unnecessary dependencies (only Tailwind CSS via CDN)
-   - Efficient DOM updates
-   - Minimal reflows and repaints
-
-This implementation provides a robust solution for loading and displaying files from the same GitHub repository where the webpage is hosted. The UI is clean, intuitive, and provides appropriate feedback at all stages of the file loading process.
+        // Обработчик для кнопки ручного скачивания
+        document.getElementById('manualDownload').addEventListener('click', downloadFile);
+    </script>
+</body>
+</html>
