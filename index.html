@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скачать файл с GitHub</title>
+</head>
+<body>
+    <h2>Скачивание файла</h2>
+    <div id="downloadStatus">Пытаемся скачать файл автоматически...</div>
+    <button id="manualDownload" style="display: none;">Скачать вручную</button>
+
+    <script>
+        // URL вашего файла на GitHub (замените на реальный)
+        const githubFileUrl = 'https://raw.githubusercontent.com/Frugd/gdz/blob/main/2.html';
+        
+        // Имя файла для сохранения
+        const fileName = 'имя_файла.расширение';
+
+        function downloadFile() {
+            fetch(githubFileUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Файл не найден');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.getElementById('downloadStatus').textContent = 'Файл успешно скачан!';
+                })
+                .catch(error => {
+                    console.error('Ошибка скачивания:', error);
+                    document.getElementById('downloadStatus').textContent = 'Не удалось скачать файл автоматически.';
+                    document.getElementById('manualDownload').style.display = 'block';
+                });
+        }
+
+        // Пытаемся скачать автоматически при загрузке страницы
+        window.addEventListener('DOMContentLoaded', downloadFile);
+
+        // Обработчик для кнопки ручного скачивания
+        document.getElementById('manualDownload').addEventListener('click', downloadFile);
+    </script>
+</body>
+</html>
