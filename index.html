@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Скачать файл с GitHub</title>
+    <title>Скачать файл</title>
 </head>
 <body>
     <h2>Скачивание файла</h2>
@@ -11,14 +11,33 @@
     <button id="manualDownload" style="display: none;">Скачать вручную</button>
 
     <script>
-        // URL вашего файла на GitHub (замените на реальный)
-        const githubFileUrl = 'https://github.com/Frugd/gdz/blob/main/2.html';
+        // Получаем текущий URL страницы
+        const currentUrl = window.location.href;
         
-        // Имя файла для сохранения
-        const fileName = 'имя_файла.расширение';
+        // Определяем базовый URL репозитория
+        let repoBaseUrl;
+        
+        // Если это GitHub Pages (user.github.io/repo)
+        if (currentUrl.includes('github.io')) {
+            const pathParts = currentUrl.split('/');
+            const repoName = pathParts[3]; // Название репозитория
+            repoBaseUrl = `https://raw.githubusercontent.com/${pathParts[2]}/${repoName}/main/`;
+        } 
+        // Если это прямой доступ к HTML в репозитории
+        else if (currentUrl.includes('github.com')) {
+            repoBaseUrl = currentUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+        }
+        // Если локальный файл или другой хостинг
+        else {
+            repoBaseUrl = './'; // Относительный путь
+        }
+        
+        // Имя файла для скачивания (замените на нужное)
+        const fileName = 'example.txt';
+        const fileUrl = repoBaseUrl + fileName;
 
         function downloadFile() {
-            fetch(githubFileUrl)
+            fetch(fileUrl)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Файл не найден');
